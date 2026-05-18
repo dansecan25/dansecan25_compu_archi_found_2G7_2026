@@ -20,9 +20,9 @@ class MainMenu:
         self.master.title("Ripes")
         self.master.resizable(False, False)
         self.master.config(bg=back)
-        self.lftPos = (self.master.winfo_screenwidth() - 1500) / 2
-        self.topPos = (self.master.winfo_screenheight() - 900) / 2
-        self.master.geometry("%dx%d+%d+%d" % (1500, 900, self.lftPos, self.topPos))
+        self.lftPos = (self.master.winfo_screenwidth() - 1000) / 2
+        self.topPos = (self.master.winfo_screenheight() - 600) / 2
+        self.master.geometry("%dx%d+%d+%d" % (1000, 600, self.lftPos, self.topPos))
 
         self.var = tk.StringVar()
         self.list = []
@@ -67,13 +67,25 @@ class MainMenu:
         self.edit_button.grid(column=0, row=0)
 
         # Processor
-        #here will go processor tab
+        self.processor_tab = tk.Frame(self.master, bg="#1A1A1A", width=1000, height=600)
+        self.processor_tab.grid_propagate(False)
 
         # Path to log file
         self.log_path = os.path.join(os.path.dirname(__file__), "..", "log.txt")
 
         # Create processor view widget
-        
+
+    def editor_window(self):
+        self.processor_tab.grid_forget()
+        self.edit_button.unbind("<Enter>")
+        self.edit_button.unbind("<Leave>")
+        self.edit_button.config(state=tk.DISABLED)
+        button_hover(self.process_button, "#3A3A3A", "SystemButtonFace")
+        self.process_button.config(state=tk.NORMAL, bg="SystemButtonFace")
+        self.editor_tab.grid(column=1, row=0, sticky="nsew", rowspan=30)
+        self.editor_tab.grid_propagate(False)
+
+
     def processor_window(self):
         self.editor_tab.grid_forget()
         self.process_button.unbind("<Enter>")
