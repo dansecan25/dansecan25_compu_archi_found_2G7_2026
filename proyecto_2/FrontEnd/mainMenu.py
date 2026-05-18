@@ -3,6 +3,7 @@ from tkinter import messagebox
 import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from processor_window import ProcessorWindow
 
 back = "#1A1A1A"
 
@@ -31,7 +32,7 @@ class MainMenu:
         # Botones de la GUI
 
         self.edit_button = tk.Button(self.master, text="Editor", font=("Terminal", 20), width=10, height=2,
-                                     pady=25,command=lambda: (), state=tk.DISABLED,
+                                     pady=25, command=lambda: self.editor_window(), state=tk.DISABLED,
                                      bg="#3A3A3A", activebackground=back)
         self.process_button = tk.Button(self.master, text="Processor", font=("Terminal", 20), width=10, height=2,
                                         pady=25, command=lambda: self.processor_window(), activebackground=back)
@@ -54,7 +55,7 @@ class MainMenu:
         self.step_back_button = tk.Button(self.editor_tab, text="<", font=("Terminal", 20))
         self.step_button = tk.Button(self.editor_tab, text=">", font=("Terminal", 20))
         self.run_button = tk.Button(self.editor_tab, text="Run", font=("Terminal", 20),
-                                     command=lambda: self.get_txt())
+                                    command=lambda: self.get_txt())
         self.fast_button = tk.Button(self.editor_tab, text=">>", font=("Terminal", 20))
 
 
@@ -66,17 +67,24 @@ class MainMenu:
         self.code_entry.grid(column=1, row=3, columnspan=5)
         self.edit_button.grid(column=0, row=0)
 
-        # Processor
-        self.processor_tab = tk.Frame(self.master, bg="#1A1A1A", width=1000, height=600)
-        self.processor_tab.grid_propagate(False)
-
         # Path to log file
         self.log_path = os.path.join(os.path.dirname(__file__), "..", "log.txt")
 
-        # Create processor view widget
+    def get_txt(self):
+        """Lee el código del editor (placeholder hasta integrar el backend)."""
+        self.list.clear()
+        self.filtered_list.clear()
+        txt = self.code_entry.get(1.0, "end").rstrip("\n")
+
+        self.list = txt.split("\n")
+        for i in range(len(self.list)):
+            linea = self.list[i].split("#")[0].strip()
+            self.filtered_list.append(linea)
+
+        self.filtered_list = [item for item in self.filtered_list if item.strip()]
+        self.master.focus_set()
 
     def editor_window(self):
-        self.processor_tab.grid_forget()
         self.edit_button.unbind("<Enter>")
         self.edit_button.unbind("<Leave>")
         self.edit_button.config(state=tk.DISABLED)
@@ -85,21 +93,10 @@ class MainMenu:
         self.editor_tab.grid(column=1, row=0, sticky="nsew", rowspan=30)
         self.editor_tab.grid_propagate(False)
 
-
     def processor_window(self):
-        self.editor_tab.grid_forget()
-        self.process_button.unbind("<Enter>")
-        self.process_button.unbind("<Leave>")
-        self.process_button.config(state=tk.DISABLED)
-        button_hover(self.edit_button, "#3A3A3A", "SystemButtonFace")
-        self.edit_button.config(state=tk.NORMAL, bg="SystemButtonFace")
+        """Abre la ventana del procesador con la vista del pipeline."""
         self.master.focus_set()
-       
-        
-
-
+        ProcessorWindow(self.master, back, "Processor", 1250, 750, self.log_path)
 
     def start(self):
         self.master.mainloop()
-
-
