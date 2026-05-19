@@ -4,10 +4,10 @@ import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from Front.processor_window import ProcessorWindow
-from Simulador.cpuPipelineSinHazards import CPUpipelineNoHazard
-from Simulador.cpuPipelineHazardControl import CPUPipelineHazardControl
-from Simulador.cpuPipelineConPredicciondeSaltos import CPUpipelineConPrediccionSaltos
-from Simulador.cpuPipelinePrediccionSaltosHazardControl import CPUPipelinePrediccionSaltosHazardControl
+#from Simulador.cpuPipelineSinHazards import CPUpipelineNoHazard
+#from Simulador.cpuPipelineHazardControl import CPUPipelineHazardControl
+#from Simulador.cpuPipelineConPredicciondeSaltos import CPUpipelineConPrediccionSaltos
+#from Simulador.cpuPipelinePrediccionSaltosHazardControl import CPUPipelinePrediccionSaltosHazardControl
 
 from processor_view import ProcessorView
 
@@ -106,25 +106,6 @@ class MainMenu:
             self.filtered_list.append(linea)
 
         self.filtered_list = [item for item in self.filtered_list if item.strip()]
-
-        if len(self.filtered_list) != 0:
-            if self.change_button.current() == 1:
-                new_cpu_pipeline1 = CPUpipelineConPrediccionSaltos()
-                new_cpu_pipeline1.cargarCodigo(self.filtered_list)
-                new_cpu_pipeline1.ejecutar()
-
-                new_cpu_pipeline2 = CPUPipelinePrediccionSaltosHazardControl()
-                new_cpu_pipeline2.cargarCodigo(self.filtered_list)
-                new_cpu_pipeline2.ejecutar()
-
-            else:
-                new_cpu_pipeline1 = CPUpipelineNoHazard()
-                new_cpu_pipeline1.cargarCodigo(self.filtered_list)
-                new_cpu_pipeline1.ejecutar()
-
-                new_cpu_pipeline2 = CPUPipelineHazardControl()
-                new_cpu_pipeline2.cargarCodigo(self.filtered_list)
-                new_cpu_pipeline2.ejecutar()
 
         self.master.focus_set()
         self.memory_button.config(state="normal")
