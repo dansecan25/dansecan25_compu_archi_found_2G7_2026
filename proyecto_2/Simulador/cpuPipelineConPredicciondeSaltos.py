@@ -1,6 +1,6 @@
 from pipelineEtapas import EtapaStore, Fetch, RegisterFile, Execute, Decode
-from componentes import Memoria
-from control import UnidadControl
+from proyecto_2.Simulador.componentes import Memoria
+from proyecto_2.Simulador.control import UnidadControl
 import os
 from pathlib import Path
 pathGen=((os.getcwd()).replace('\\','/'))+"/"

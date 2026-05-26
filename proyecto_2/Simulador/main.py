@@ -1,8 +1,8 @@
-from cpu import CPU
-from cpuPipelineSinHazards import CPUpipelineNoHazard
-from cpuPipelineHazardControl import CPUPipelineHazardControl
-from cpuPipelineConPredicciondeSaltos import CPUpipelineConPrediccionSaltos
-from cpuPipelinePrediccionSaltosHazardControl import CPUPipelinePrediccionSaltosHazardControl
+from proyecto_2.Simulador.cpu import CPU
+from proyecto_2.Simulador.cpuPipelineSinHazards import CPUpipelineNoHazard
+from proyecto_2.Simulador.cpuPipelineHazardControl import CPUPipelineHazardControl
+from proyecto_2.Simulador.cpuPipelineConPredicciondeSaltos import CPUpipelineConPrediccionSaltos
+from proyecto_2.Simulador.cpuPipelinePrediccionSaltosHazardControl import CPUPipelinePrediccionSaltosHazardControl
 # 0-> original ripes
 # 1-> no hazard codigo  
 # 2-> hazard control necesitado

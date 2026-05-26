@@ -1,5 +1,5 @@
-from componentes import ALU, BancoRegistros, Memoria, SignExtender, MUX
-from control import UnidadControl
+from proyecto_2.Simulador.componentes import ALU, BancoRegistros, Memoria, SignExtender, MUX
+from proyecto_2.Simulador.control import UnidadControl
 import os
 from pathlib import Path
 

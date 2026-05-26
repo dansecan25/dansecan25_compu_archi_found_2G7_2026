@@ -1,9 +1,9 @@
 from pipelineEtapas import EtapaStore, Fetch, RegisterFile, Execute, Decode
-from componentes import Memoria
-from control import UnidadControl
+from proyecto_2.Simulador.componentes import Memoria
+from proyecto_2.Simulador.control import UnidadControl
 import os
 from pathlib import Path
-from cpuPipelineConPredicciondeSaltos import BranchPredictor
+from proyecto_2.Simulador.cpuPipelineConPredicciondeSaltos import BranchPredictor
 pathGen=((os.getcwd()).replace('\\','/'))+"/"
 
 class CPUPipelinePrediccionSaltosHazardControl:
@@ -64,7 +64,7 @@ class CPUPipelinePrediccionSaltosHazardControl:
         Devuelve la nueva lista con NOPs insertados.
         """
         # import local para obtener latencias de instrucción
-        from pipelineEtapas.latencias_config import get_instruction_latency
+        from proyecto_2.Simulador.pipelineEtapas.latencias_config import get_instruction_latency
 
         def parse_regs(inst: str):
             """
