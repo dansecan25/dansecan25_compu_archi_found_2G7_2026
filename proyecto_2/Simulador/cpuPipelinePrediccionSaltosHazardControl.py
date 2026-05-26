@@ -65,7 +65,7 @@ class CPUPipelinePrediccionSaltosHazardControl:
         Devuelve la nueva lista con NOPs insertados.
         """
         # import local para obtener latencias de instrucción
-        from proyecto_2.Simulador.pipelineEtapas.latencias_config import get_instruction_latency
+        from pipelineEtapas.latencias_config import get_instruction_latency
 
         def parse_regs(inst: str):
             """

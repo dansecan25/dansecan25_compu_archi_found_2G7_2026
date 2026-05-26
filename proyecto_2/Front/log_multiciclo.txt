@@ -1,0 +1,160 @@
+=== LOG DE EJECUCIÓN DEL CPU MULTICICLO ===
+Arquitectura: Multi-Cycle (3-5 ciclos por instrucción)
+Etapas: FETCH → DECODE → EXECUTE → MEMORY → WRITEBACK
+================================================================================
+
+12 instrucciones cargadas
+Labels detectados: {'skip': 10}
+
+=== INICIANDO EJECUCIÓN ===
+
+
+[CICLO 1] FETCH - PC=0
+  IR ← Mem[0] = 'addi x1, x0, 10'
+[CICLO 2] DECODE
+  Opcode: addi
+  Señales: {'RegWrite': 1, 'ALUSrc': 1, 'MemRead': 0, 'MemWrite': 0, 'MemToReg': 0, 'Branch': 0, 'ALUOp': 'add'}
+  A ← x0 = 0
+  B ← SignExt(10) = 10
+[CICLO 3] EXECUTE
+  ALUOut ← 0 + 10 = 10
+[CICLO 4] WRITEBACK
+  x1 ← 10
+
+[CICLO 5] FETCH - PC=1
+  IR ← Mem[1] = 'addi x2, x0, 20'
+[CICLO 6] DECODE
+  Opcode: addi
+  Señales: {'RegWrite': 1, 'ALUSrc': 1, 'MemRead': 0, 'MemWrite': 0, 'MemToReg': 0, 'Branch': 0, 'ALUOp': 'add'}
+  A ← x0 = 0
+  B ← SignExt(20) = 20
+[CICLO 7] EXECUTE
+  ALUOut ← 0 + 20 = 20
+[CICLO 8] WRITEBACK
+  x2 ← 20
+
+[CICLO 9] FETCH - PC=2
+  IR ← Mem[2] = 'add x3, x1, x2'
+[CICLO 10] DECODE
+  Opcode: add
+  Señales: {'RegWrite': 1, 'ALUSrc': 0, 'MemRead': 0, 'MemWrite': 0, 'MemToReg': 0, 'Branch': 0, 'ALUOp': 'add'}
+  A ← x1 = 10
+  B ← x2 = 20
+[CICLO 11] EXECUTE
+  ALUOut ← 10 add 20 = 30
+[CICLO 12] WRITEBACK
+  x3 ← 30
+
+[CICLO 13] FETCH - PC=3
+  IR ← Mem[3] = 'addi x10, x0, 0'
+[CICLO 14] DECODE
+  Opcode: addi
+  Señales: {'RegWrite': 1, 'ALUSrc': 1, 'MemRead': 0, 'MemWrite': 0, 'MemToReg': 0, 'Branch': 0, 'ALUOp': 'add'}
+  A ← x0 = 0
+  B ← SignExt(0) = 0
+[CICLO 15] EXECUTE
+  ALUOut ← 0 + 0 = 0
+[CICLO 16] WRITEBACK
+  x10 ← 0
+
+[CICLO 17] FETCH - PC=4
+  IR ← Mem[4] = 'sw x1, 0(x10)'
+[CICLO 18] DECODE
+  Opcode: sw
+  Señales: {'RegWrite': 0, 'ALUSrc': 1, 'MemRead': 0, 'MemWrite': 1, 'MemToReg': 0, 'Branch': 0, 'ALUOp': 'add'}
+  A ← x10 = 0 (base)
+  B ← x1 = 10 (dato)
+[CICLO 19] EXECUTE
+  ALUOut ← 0 + 0 = 0 (dirección)
+[CICLO 20] MEMORY
+  Mem[0] ← 10
+
+[CICLO 21] FETCH - PC=5
+  IR ← Mem[5] = 'sw x2, 4(x10)'
+[CICLO 22] DECODE
+  Opcode: sw
+  Señales: {'RegWrite': 0, 'ALUSrc': 1, 'MemRead': 0, 'MemWrite': 1, 'MemToReg': 0, 'Branch': 0, 'ALUOp': 'add'}
+  A ← x10 = 0 (base)
+  B ← x2 = 20 (dato)
+[CICLO 23] EXECUTE
+  ALUOut ← 0 + 4 = 4 (dirección)
+[CICLO 24] MEMORY
+  Mem[4] ← 20
+
+[CICLO 25] FETCH - PC=6
+  IR ← Mem[6] = 'sw x3, 8(x10)'
+[CICLO 26] DECODE
+  Opcode: sw
+  Señales: {'RegWrite': 0, 'ALUSrc': 1, 'MemRead': 0, 'MemWrite': 1, 'MemToReg': 0, 'Branch': 0, 'ALUOp': 'add'}
+  A ← x10 = 0 (base)
+  B ← x3 = 30 (dato)
+[CICLO 27] EXECUTE
+  ALUOut ← 0 + 8 = 8 (dirección)
+[CICLO 28] MEMORY
+  Mem[8] ← 30
+
+[CICLO 29] FETCH - PC=7
+  IR ← Mem[7] = 'lw x4, 0(x10)'
+[CICLO 30] DECODE
+  Opcode: lw
+  Señales: {'RegWrite': 1, 'ALUSrc': 1, 'MemRead': 1, 'MemWrite': 0, 'MemToReg': 1, 'Branch': 0, 'ALUOp': 'add'}
+  A ← x10 = 0 (base)
+[CICLO 31] EXECUTE
+  ALUOut ← 0 + 0 = 0 (dirección)
+[CICLO 32] MEMORY
+  MDR ← Mem[0] = 10
+[CICLO 33] WRITEBACK
+  x4 ← 10
+
+[CICLO 34] FETCH - PC=8
+  IR ← Mem[8] = 'beq x1, x2, skip'
+[CICLO 35] DECODE
+  Opcode: beq
+  Señales: {'RegWrite': 0, 'ALUSrc': 0, 'MemRead': 0, 'MemWrite': 0, 'MemToReg': 0, 'Branch': 1, 'ALUOp': 'sub'}
+  A ← x1 = 10
+  B ← x2 = 20
+[CICLO 36] EXECUTE
+  Comparación: 10 == 20 → False
+  Branch NO TOMADO: PC ← 9
+
+[CICLO 37] FETCH - PC=9
+  IR ← Mem[9] = 'addi x5, x0, 50'
+[CICLO 38] DECODE
+  Opcode: addi
+  Señales: {'RegWrite': 1, 'ALUSrc': 1, 'MemRead': 0, 'MemWrite': 0, 'MemToReg': 0, 'Branch': 0, 'ALUOp': 'add'}
+  A ← x0 = 0
+  B ← SignExt(50) = 50
+[CICLO 39] EXECUTE
+  ALUOut ← 0 + 50 = 50
+[CICLO 40] WRITEBACK
+  x5 ← 50
+
+[CICLO 41] FETCH - PC=10
+  IR ← Mem[10] = 'addi x6, x0, 77'
+[CICLO 42] DECODE
+  Opcode: addi
+  Señales: {'RegWrite': 1, 'ALUSrc': 1, 'MemRead': 0, 'MemWrite': 0, 'MemToReg': 0, 'Branch': 0, 'ALUOp': 'add'}
+  A ← x0 = 0
+  B ← SignExt(77) = 77
+[CICLO 43] EXECUTE
+  ALUOut ← 0 + 77 = 77
+[CICLO 44] WRITEBACK
+  x6 ← 77
+
+[CICLO 45] FETCH - PC=11
+  IR ← Mem[11] = 'nop'
+[CICLO 46] DECODE
+  NOP detectado
+
+[CICLO 47] FETCH - PC=12
+  Fin del programa
+
+================================================================================
+[EJECUCIÓN COMPLETADA]
+Total de ciclos: 47
+Instrucciones ejecutadas: 12
+Tiempo de ejecución: 0.000247 segundos
+CPI (Cycles Per Instruction): 3.92
+================================================================================
+
+Estado de memoria escrito en memoria_salida_multiciclo.txt

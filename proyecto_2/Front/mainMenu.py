@@ -56,9 +56,13 @@ class MainMenu:
         button_hover(self.compile_button, "#3A3A3A", "SystemButtonFace")
         #button_hover(self.memory_button, "#3A3A3A", "SystemButtonFace")
 
-        self.change_button = ttk.Combobox(self.master, font=("Terminal", 20), state="readonly", width=14, height=4)
+        self.change_button = ttk.Combobox(self.master, font=("Terminal", 16), state="readonly", width=20, height=4)
 
-        self.change_button["values"] = ('CPU_NH/CPU_HC', 'CPU_PS/CPU_SHC')
+        self.change_button["values"] = (
+            'Uniciclo/Multiciclo',
+            'Pipeline NH/Pipeline HC',
+            'Pipeline PS/Pipeline PS+HC'
+        )
         self.change_button.current(0)
         #self.change_button.bind('<<ComboboxSelected>>', self.selected)
 
@@ -141,11 +145,34 @@ class MainMenu:
         # Habilitar botón de memoria
         self.memory_button.config(state="normal")
         
-        # Configurar labels
-        cpu_label = ["CPU sin Hazards / CPU con Hazard Control",
-                     "CPU Prediccion de Saltos / CPU Prediccion de Saltos con Hazard"]
-        cpu_title = ["CPU sin Hazards", "CPU Prediccion de Saltos",
-                     "CPU con Hazard Control", "CPU Prediccion de Saltos con Hazard"]
+        # Mapear selección del combobox a índices de CPU
+        # 0: Uniciclo(0)/Multiciclo(1)
+        # 1: Pipeline NH(2)/Pipeline HC(3)
+        # 2: Pipeline PS(4)/Pipeline PS+HC(5)
+        cpu_pair_map = {
+            0: (0, 1),  # Uniciclo, Multiciclo
+            1: (2, 3),  # Pipeline NH, Pipeline HC
+            2: (4, 5)   # Pipeline PS, Pipeline PS+HC
+        }
+        
+        cpu1_idx, cpu2_idx = cpu_pair_map[cpu_pair_index]
+        
+        # Configurar labels y títulos
+        cpu_label = [
+            "CPU Uniciclo / CPU Multiciclo",
+            "CPU Pipeline sin Hazards / CPU Pipeline con Hazard Control",
+            "CPU Pipeline con Prediccion / CPU Pipeline con Prediccion + Hazard"
+        ]
+        
+        cpu_titles = [
+            "CPU Uniciclo",
+            "CPU Multiciclo",
+            "CPU Pipeline sin Hazards",
+            "CPU Pipeline con Hazard Control",
+            "CPU Pipeline con Prediccion",
+            "CPU Pipeline con Prediccion + Hazard"
+        ]
+        
         self.cpu_label.config(text=cpu_label[cpu_pair_index])
         
         # Obtener dimensiones de pantalla para posicionar ventanas
@@ -156,21 +183,21 @@ class MainMenu:
         window_width = int(screen_width * 0.7)
         window_height = int(screen_height * 0.7)
         
-        # Abrir ventanas de procesador con posiciones ajustadas
+        # Abrir ventanas de procesador con índices correctos
         # Ventana 1: lado izquierdo
         ProcessorWindow(
             self.master, back,
-            cpu_title[cpu_pair_index],
+            cpu_titles[cpu1_idx],
             window_width, window_height,
-            cpu_pair_index
+            cpu1_idx
         )
         
         # Ventana 2: lado derecho (con offset)
         ProcessorWindow(
             self.master, back,
-            cpu_title[cpu_pair_index + 2],
+            cpu_titles[cpu2_idx],
             window_width, window_height,
-            cpu_pair_index + 2
+            cpu2_idx
         )
         
         # Mostrar mensaje de éxito
@@ -209,19 +236,63 @@ class MainMenu:
         self.memory_tab.grid_propagate(False)
 
         # Get Memory File
-
-        file_paths = ["memoria_salida.txt", "memoria_salida_prediccion.txt", "memoria_salida_hazard_control.txt",
-                      "memoria_salida_prediccion_hazard_control.txt"]
+        # Construct paths relative to the Front directory
+        front_dir = os.path.dirname(os.path.abspath(__file__))
+        file_names = [
+            "memoria_salida_uniciclo.txt",
+            "memoria_salida_multiciclo.txt",
+            "memoria_salida.txt",
+            "memoria_salida_hazard_control.txt",
+            "memoria_salida_prediccion.txt",
+            "memoria_salida_prediccion_hazard_control.txt"
+        ]
+        file_paths = [os.path.join(front_dir, name) for name in file_names]
+        
         self.memory_text1.config(state=tk.NORMAL)
         self.memory_text2.config(state=tk.NORMAL)
-        with open(file_paths[self.change_button.current()], "r") as file:
-            content = file.read()
+        
+        # Map combobox selection to CPU pair indices
+        # 0: Uniciclo(0)/Multiciclo(1)
+        # 1: Pipeline NH(2)/Pipeline HC(3)
+        # 2: Pipeline PS(4)/Pipeline PS+HC(5)
+        cpu_pair_map = {
+            0: (0, 1),  # Uniciclo, Multiciclo
+            1: (2, 3),  # Pipeline NH, Pipeline HC
+            2: (4, 5)   # Pipeline PS, Pipeline PS+HC
+        }
+        
+        selection = self.change_button.current()
+        cpu1_idx, cpu2_idx = cpu_pair_map.get(selection, (0, 1))
+        
+        try:
+            # Read first memory file
+            file_path1 = file_paths[cpu1_idx]
+            if os.path.exists(file_path1):
+                with open(file_path1, "r", encoding="utf-8") as file:
+                    content = file.read()
+                    self.memory_text1.delete(1.0, tk.END)
+                    self.memory_text1.insert(tk.END, content)
+            else:
+                self.memory_text1.delete(1.0, tk.END)
+                self.memory_text1.insert(tk.END, f"File not found: {file_path1}\nPlease run the simulation first.")
+            
+            # Read second memory file
+            file_path2 = file_paths[cpu2_idx]
+            if os.path.exists(file_path2):
+                with open(file_path2, "r", encoding="utf-8") as file:
+                    content = file.read()
+                    self.memory_text2.delete(1.0, tk.END)
+                    self.memory_text2.insert(tk.END, content)
+            else:
+                self.memory_text2.delete(1.0, tk.END)
+                self.memory_text2.insert(tk.END, f"File not found: {file_path2}\nPlease run the simulation first.")
+        except Exception as e:
+            messagebox.showerror("Error", f"Error loading memory files: {str(e)}")
             self.memory_text1.delete(1.0, tk.END)
-            self.memory_text1.insert(tk.END, content)
-        with open(file_paths[self.change_button.current() + 2], "r") as file:
-            content = file.read()
+            self.memory_text1.insert(tk.END, f"Error: {str(e)}")
             self.memory_text2.delete(1.0, tk.END)
-            self.memory_text2.insert(tk.END, content)
+            self.memory_text2.insert(tk.END, f"Error: {str(e)}")
+        
         self.memory_text1.config(state=tk.DISABLED)
         self.memory_text2.config(state=tk.DISABLED)
 
