@@ -10,19 +10,41 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 class ProcessorWindow:
 
 
-    def __init__(self, root, back, title, lft_pos, top_pos, cpu):
+    def __init__(self, root, back, title, window_width, window_height, cpu):
         self.root = root
         self.back = back
-        self.process_win  = tk.Toplevel(self.root)
+        self.process_win = tk.Toplevel(self.root)
         self.process_win.title(title)
-        self.process_win.resizable(False, False)
+        self.process_win.resizable(True, True)  # Permitir redimensionar
         self.process_win.config(bg=back)
-        self.lftPos = (self.process_win.winfo_screenwidth() - lft_pos) / 2
-        self.topPos = (self.process_win.winfo_screenheight() - top_pos) / 2
-        self.process_win.geometry("%dx%d+%d+%d" % (1250, 750, self.lftPos, self.topPos))
+        
+        # Obtener dimensiones de pantalla
+        screen_width = self.process_win.winfo_screenwidth()
+        screen_height = self.process_win.winfo_screenheight()
+        
+        # Ajustar tamaño de ventana (máximo 70% de pantalla)
+        max_width = int(screen_width * 0.7)
+        max_height = int(screen_height * 0.75)
+        actual_width = min(window_width, max_width, 1100)
+        actual_height = min(window_height, max_height, 700)
+        
+        # Posicionar ventanas lado a lado
+        # CPU 0 y 1 (primera columna) van a la izquierda
+        # CPU 2 y 3 (segunda columna) van a la derecha
+        if cpu in [0, 1]:
+            # Ventana izquierda
+            self.lftPos = 50
+        else:
+            # Ventana derecha
+            self.lftPos = screen_width - actual_width - 50
+        
+        # Posición vertical centrada pero visible
+        self.topPos = max(50, (screen_height - actual_height) / 2)
+        
+        self.process_win.geometry("%dx%d+%d+%d" % (actual_width, actual_height, self.lftPos, self.topPos))
 
-        self.processor_tab = tk.Frame(self.process_win, bg="#1A1A1A", width=1280, height=900)
-        self.processor_tab.grid_propagate(False)
+        self.processor_tab = tk.Frame(self.process_win, bg="#1A1A1A")
+        self.processor_tab.pack(fill='both', expand=True)
 
         self.log_files = ["log.txt", "log_prediccion.txt", "log_hazard_control.txt", "log_prediccion_hazard_control.txt"]
 
@@ -31,16 +53,12 @@ class ProcessorWindow:
 
         # Create processor view widget
         self.processor_view = ProcessorView(self.processor_tab, self.log_path)
-        self.processor_view.grid(column=1, row=0, sticky="nsew", rowspan=30)
-
-        self.processor_tab.grid(column=1, row=0, sticky="nsew", rowspan=30)
+        self.processor_view.pack(fill='both', expand=True)
 
         if self.processor_view:
            success = self.processor_view.load_log()
-           #if success:
-           #    messagebox.showinfo("Success", "Simulation completed! Switch to Processor tab to view pipeline execution.")
-           #else:
-           #    messagebox.showerror("Error", "Failed to load simulation log.")
+           if not success:
+               messagebox.showerror("Error", f"Failed to load simulation log: {self.log_files[cpu]}")
 
         self.process_win.protocol("WM_DELETE_WINDOW", self.on_closing)
 

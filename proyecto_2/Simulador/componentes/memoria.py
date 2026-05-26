@@ -1,6 +1,6 @@
 class Memoria:
     def __init__(self, size):
-        self.data = [0] * size  # puede almacenar ints o strings (instrucciones)
+        self.data: list[int | str] = [0] * size  # puede almacenar ints o strings (instrucciones)
 
     def escribir(self, direccion, valor):
         """Guarda un valor en una dirección de memoria."""

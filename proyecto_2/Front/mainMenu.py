@@ -4,11 +4,7 @@ import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from Front.processor_window import ProcessorWindow
-#from Simulador.cpuPipelineSinHazards import CPUpipelineNoHazard
-#from Simulador.cpuPipelineHazardControl import CPUPipelineHazardControl
-#from Simulador.cpuPipelineConPredicciondeSaltos import CPUpipelineConPrediccionSaltos
-#from Simulador.cpuPipelinePrediccionSaltosHazardControl import CPUPipelinePrediccionSaltosHazardControl
-
+from Front.simulator_runner import SimulatorRunner
 from processor_view import ProcessorView
 
 back = "#1A1A1A"
@@ -24,12 +20,19 @@ class MainMenu:
 
     def __init__(self):
         self.master = tk.Tk()
-        self.master.title("Ripes")
+        self.master.title("RISC-V Pipeline Simulator")
         self.master.resizable(False, False)
         self.master.config(bg=back)
-        self.lftPos = (self.master.winfo_screenwidth() - 1500) / 2
-        self.topPos = (self.master.winfo_screenheight() - 900) / 2
-        self.master.geometry("%dx%d+%d+%d" % (1500, 900, self.lftPos, self.topPos))
+        
+        # Ajustar tamaño de ventana según resolución de pantalla (80% de ancho, 85% de alto)
+        screen_width = self.master.winfo_screenwidth()
+        screen_height = self.master.winfo_screenheight()
+        window_width = min(1200, int(screen_width * 0.8))
+        window_height = min(750, int(screen_height * 0.85))
+        
+        self.lftPos = (screen_width - window_width) / 2
+        self.topPos = (screen_height - window_height) / 2
+        self.master.geometry("%dx%d+%d+%d" % (window_width, window_height, self.lftPos, self.topPos))
 
         self.var = tk.StringVar()
         self.list = []
@@ -96,6 +99,7 @@ class MainMenu:
 
 
     def get_txt(self):
+        """Ejecuta las simulaciones y abre las ventanas de visualización"""
         self.list.clear()
         self.filtered_list.clear()
         txt = self.code_entry.get(1.0, "end").rstrip("\n")
@@ -107,15 +111,74 @@ class MainMenu:
 
         self.filtered_list = [item for item in self.filtered_list if item.strip()]
 
+        # Validar que hay código para ejecutar
+        if not self.filtered_list:
+            messagebox.showwarning("Advertencia", "Por favor ingrese código RISC-V para simular")
+            return
+
         self.master.focus_set()
+        
+        # Ejecutar simulaciones usando SimulatorRunner
+        cpu_pair_index = self.change_button.current()
+        
+        # Mostrar mensaje de progreso
+        progress_msg = messagebox.showinfo(
+            "Ejecutando Simulaciones",
+            "Ejecutando simulaciones del CPU...\nEsto puede tomar unos segundos.",
+            parent=self.master
+        )
+        
+        # Ejecutar las dos simulaciones
+        success1, success2 = SimulatorRunner.run_dual_simulation(cpu_pair_index, self.list)
+        
+        if not (success1 and success2):
+            messagebox.showerror(
+                "Error en Simulación",
+                "Ocurrió un error durante la simulación.\nRevise la consola para más detalles."
+            )
+            return
+        
+        # Habilitar botón de memoria
         self.memory_button.config(state="normal")
+        
+        # Configurar labels
         cpu_label = ["CPU sin Hazards / CPU con Hazard Control",
                      "CPU Prediccion de Saltos / CPU Prediccion de Saltos con Hazard"]
         cpu_title = ["CPU sin Hazards", "CPU Prediccion de Saltos",
                      "CPU con Hazard Control", "CPU Prediccion de Saltos con Hazard"]
-        self.cpu_label.config(text=cpu_label[self.change_button.current()])
-        ProcessorWindow(self.master,back,cpu_title[self.change_button.current()], 1950, 1080, self.change_button.current())
-        ProcessorWindow(self.master, back, cpu_title[self.change_button.current() + 2], 500, 750, self.change_button.current()+2)
+        self.cpu_label.config(text=cpu_label[cpu_pair_index])
+        
+        # Obtener dimensiones de pantalla para posicionar ventanas
+        screen_width = self.master.winfo_screenwidth()
+        screen_height = self.master.winfo_screenheight()
+        
+        # Calcular tamaños de ventana (70% de pantalla)
+        window_width = int(screen_width * 0.7)
+        window_height = int(screen_height * 0.7)
+        
+        # Abrir ventanas de procesador con posiciones ajustadas
+        # Ventana 1: lado izquierdo
+        ProcessorWindow(
+            self.master, back,
+            cpu_title[cpu_pair_index],
+            window_width, window_height,
+            cpu_pair_index
+        )
+        
+        # Ventana 2: lado derecho (con offset)
+        ProcessorWindow(
+            self.master, back,
+            cpu_title[cpu_pair_index + 2],
+            window_width, window_height,
+            cpu_pair_index + 2
+        )
+        
+        # Mostrar mensaje de éxito
+        messagebox.showinfo(
+            "Simulación Completada",
+            "Las simulaciones se completaron exitosamente.\n"
+            "Use los controles en las ventanas de procesador para navegar por los ciclos."
+        )
 
 
     def editor_window(self):

@@ -26,7 +26,7 @@ class CPU:
 
     def ejecutar(self, codigo):
         self.PC = 0
-        self.mem_inst.data = [None] * len(self.mem_inst.data)
+        self.mem_inst.data = [0] * len(self.mem_inst.data)
         self.labels = {}
         self.data_pointer = 0
 
@@ -104,7 +104,7 @@ class CPU:
 
     def ejecutar_ciclo(self):
         instr_original = self.mem_inst.leer(self.PC)
-        if not instr_original:
+        if not instr_original or not isinstance(instr_original, str):
             self.log("Fin del programa")
             return False
 

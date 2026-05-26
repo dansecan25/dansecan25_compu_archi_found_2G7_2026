@@ -1,9 +1,8 @@
 from pipelineEtapas import EtapaStore, Fetch, RegisterFile, Execute, Decode
-from proyecto_2.Simulador.componentes import Memoria
-from proyecto_2.Simulador.control import UnidadControl
+from componentes import Memoria
+from control import UnidadControl
 import os
 from pathlib import Path
-pathGen=((os.getcwd()).replace('\\','/'))+"/"
 
 class CPUPipelineHazardControl:
     def __init__(self):
@@ -25,9 +24,11 @@ class CPUPipelineHazardControl:
         self.indice_instruccion:int = 0  # Índice de siguiente instrucción a cargar
         self.ciclo_actual:int = 0  # Contador de ciclos de reloj
         
-        # Log
-        self.log_file = open(pathGen+"log_hazard_control.txt", "w", encoding="utf-8")
-        self.log_file.write("=== LOG DE EJECUCIÓN DEL CPU PIPELINE ===\n")
+        # Log - Ruta corregida para que el frontend lo encuentre
+        log_dir = Path(__file__).parent.parent / "Front"
+        log_path = log_dir / "log_hazard_control.txt"
+        self.log_file = open(log_path, "w", encoding="utf-8")
+        self.log_file.write("=== LOG DE EJECUCIÓN DEL CPU PIPELINE CON HAZARD CONTROL ===\n")
         self.log_file.write("Latencias: Fetch=1, Decode=1, RegisterFile=1, Execute=2(var), Store=1\n")
         self.log_file.write("=" * 80 + "\n\n")
 
@@ -383,7 +384,10 @@ class CPUPipelineHazardControl:
 
     def guardar_memoria_en_archivo(self, ruta):
         """Guarda el contenido de la memoria de datos en un archivo."""
-        with open(pathGen+ruta, "w", encoding="utf-8") as f:
+        # Guardar en el directorio Front para que el frontend lo encuentre
+        mem_dir = Path(__file__).parent.parent / "Front"
+        mem_path = mem_dir / ruta
+        with open(mem_path, "w", encoding="utf-8") as f:
             for i, valor in enumerate(self.mem_data.data):
                 f.write(f"[{i:03d}] -> {valor}\n")
         self.log(f"Estado de memoria escrito en {ruta}")

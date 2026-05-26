@@ -1,10 +1,9 @@
 from pipelineEtapas import EtapaStore, Fetch, RegisterFile, Execute, Decode
-from proyecto_2.Simulador.componentes import Memoria
-from proyecto_2.Simulador.control import UnidadControl
+from componentes import Memoria
+from control import UnidadControl
 import os
 from pathlib import Path
-from proyecto_2.Simulador.cpuPipelineConPredicciondeSaltos import BranchPredictor
-pathGen=((os.getcwd()).replace('\\','/'))+"/"
+from cpuPipelineConPredicciondeSaltos import BranchPredictor
 
 class CPUPipelinePrediccionSaltosHazardControl:
     def __init__(self, predictor_strategy='always_taken'):
@@ -39,9 +38,11 @@ class CPUPipelinePrediccionSaltosHazardControl:
         self.total_flushes = 0
         self.branch_count = 0
         
-        # Log
-        self.log_file = open(pathGen+"log_prediccion_hazard_control.txt", "w", encoding="utf-8")
-        self.log_file.write("=== LOG DE EJECUCIÓN DEL CPU PIPELINE CON PREDICCIÓN DE SALTOS ===\n")
+        # Log - Ruta corregida para que el frontend lo encuentre
+        log_dir = Path(__file__).parent.parent / "Front"
+        log_path = log_dir / "log_prediccion_hazard_control.txt"
+        self.log_file = open(log_path, "w", encoding="utf-8")
+        self.log_file.write("=== LOG DE EJECUCIÓN DEL CPU PIPELINE CON PREDICCIÓN DE SALTOS Y HAZARD CONTROL ===\n")
         self.log_file.write(f"Estrategia de predicción: {predictor_strategy}\n")
         self.log_file.write("=" * 80 + "\n\n")
 
@@ -562,7 +563,10 @@ class CPUPipelinePrediccionSaltosHazardControl:
 
     def guardar_memoria_en_archivo(self, ruta):
         """Guarda el contenido de la memoria de datos en un archivo."""
-        with open(pathGen+ruta, "w", encoding="utf-8") as f:
+        # Guardar en el directorio Front para que el frontend lo encuentre
+        mem_dir = Path(__file__).parent.parent / "Front"
+        mem_path = mem_dir / ruta
+        with open(mem_path, "w", encoding="utf-8") as f:
             for i, valor in enumerate(self.mem_data.data):
                 f.write(f"[{i:03d}] -> {valor}\n")
         self.log(f"Estado de memoria escrito en {ruta}")
