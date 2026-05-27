@@ -4,6 +4,24 @@ import re
 import os
 from processor_diagram import ProcessorDiagram
 
+# ─── Paleta (igual que vista_uniciclo y vista_multiciclo) ────────────────────
+BG         = "#1A1A1A"
+BG2        = "#222222"
+BG3        = "#2A2A2A"
+BORDER     = "#3A3A3A"
+ACTIVE_CLR = "#2D5A8A"
+IDLE_CLR   = "#2E2E2E"
+ACTIVE_TXT = "#FFFFFF"
+IDLE_TXT   = "#777777"
+ACCENT     = "#5AADDD"
+GREEN      = "#5ACD8A"
+FG         = "#DDDDDD"
+FG2        = "#999999"
+MONO       = ("Courier", 9)
+MONO_S     = ("Courier", 8)
+SMALL      = ("Courier", 7)
+LABEL_F    = ("Courier", 9, "bold")
+
 
 class LogParser:
     """Parse the log.txt file to extract pipeline execution data"""
@@ -105,8 +123,8 @@ class PipelineStage(tk.Canvas):
     """Visual representation of a single pipeline stage"""
 
     def __init__(self, parent, stage_name, width=180, height=100, **kwargs):
-        super().__init__(parent, width=width, height=height, bg='#2B2B2B',
-                        highlightthickness=1, highlightbackground='#4A4A4A', **kwargs)
+        super().__init__(parent, width=width, height=height, bg=BG2,
+                        highlightthickness=1, highlightbackground=BORDER, **kwargs)
 
         self.stage_name = stage_name
         self.width = width
@@ -114,21 +132,21 @@ class PipelineStage(tk.Canvas):
 
         # Draw stage box
         self.box = self.create_rectangle(10, 10, width-10, height-10,
-                                         fill='#3A3A3A', outline='#5A5A5A', width=2)
+                                         fill=IDLE_CLR, outline=BORDER, width=2)
 
         # Stage name label
         self.name_text = self.create_text(width//2, 25, text=stage_name,
-                                         fill='#FFFFFF', font=('Arial', 10, 'bold'))
+                                         fill=ACTIVE_TXT, font=LABEL_F)
 
         # Instruction text
         self.instr_text = self.create_text(width//2, 55, text='Libre',
-                                          fill='#888888', font=('Arial', 9), width=width-30)
+                                          fill=IDLE_TXT, font=MONO, width=width-30)
 
     def update_stage(self, instruction_text, is_busy=False):
         """Update the stage with current instruction"""
         if instruction_text == "Libre":
-            self.itemconfig(self.box, fill='#3A3A3A', outline='#5A5A5A')
-            self.itemconfig(self.instr_text, text='Libre', fill='#888888')
+            self.itemconfig(self.box, fill=IDLE_CLR, outline=BORDER)
+            self.itemconfig(self.instr_text, text='Libre', fill=IDLE_TXT)
         else:
             # Parse "Procesando: instruction (X ciclos restantes)"
             match = re.match(r'Procesando:\s+(.+?)\s+\((\d+)\s+ciclos?\s+restantes?\)', instruction_text)
@@ -139,86 +157,119 @@ class PipelineStage(tk.Canvas):
             else:
                 display_text = instruction_text
 
-            self.itemconfig(self.box, fill='#4A6A4A', outline='#6ADA6A')
-            self.itemconfig(self.instr_text, text=display_text, fill='#FFFFFF')
+            self.itemconfig(self.box, fill=ACTIVE_CLR, outline=ACCENT)
+            self.itemconfig(self.instr_text, text=display_text, fill=ACTIVE_TXT)
 
 
 class ProcessorView(tk.Frame):
     """Main processor visualization component"""
 
     def __init__(self, parent, log_path, **kwargs):
-        super().__init__(parent, bg='#1A1A1A', **kwargs)
+        super().__init__(parent, bg=BG, **kwargs)
 
         self.log_path = log_path
         self.parser = LogParser(log_path)
         self.current_cycle = 0
         self.is_running = False
         self.animation_speed = 500  # milliseconds
+        self._speed = 1  # Velocidad multiplicador (1×, 2×, 4×, 8×)
         self.processor_diagram = None  # Will be created in setup_ui
 
         self.setup_ui()
 
     def setup_ui(self):
         """Setup the user interface"""
-        # Control panel at top
-        control_frame = tk.Frame(self, bg='#2A2A2A', height=60)
-        control_frame.pack(fill='x', padx=5, pady=5)
-        control_frame.pack_propagate(False)
+        # Control panel at top (fixed, no scroll)
+        control_frame = tk.Frame(self, bg=BG3, pady=5)
+        control_frame.pack(fill='x', padx=5, pady=5, side='top')
 
-        # Control buttons
-        btn_style = {'font': ('Arial', 10), 'bg': '#4A4A4A', 'fg': 'white',
-                    'activebackground': '#5A5A5A', 'relief': 'raised', 'bd': 2}
+        # Control buttons (mismo estilo que multiciclo/uniciclo)
+        btn_style = {'bg': "#333333", 'fg': FG, 'font': ("Courier", 10),
+                    'relief': tk.GROOVE, 'activebackground': BORDER,
+                    'bd': 1, 'padx': 10, 'pady': 3}
 
-        self.reset_btn = tk.Button(control_frame, text='⟲ Reset', command=self.reset, **btn_style)
-        self.reset_btn.pack(side='left', padx=3, pady=10)
+        self.reset_btn = tk.Button(control_frame, text='Reset', command=self.reset, **btn_style)  # type: ignore
+        self.reset_btn.pack(side='left', padx=4)
 
-        self.step_back_btn = tk.Button(control_frame, text='◀ Step Back',
-                                       command=self.step_back, **btn_style)
-        self.step_back_btn.pack(side='left', padx=3, pady=10)
+        self.step_back_btn = tk.Button(control_frame, text='◀ Back',
+                                       command=self.step_back, **btn_style)  # type: ignore
+        self.step_back_btn.pack(side='left', padx=4)
 
-        self.step_btn = tk.Button(control_frame, text='▶ Step', command=self.step, **btn_style)
-        self.step_btn.pack(side='left', padx=3, pady=10)
+        self.step_btn = tk.Button(control_frame, text='Step', command=self.step, **btn_style)  # type: ignore
+        self.step_btn.pack(side='left', padx=4)
 
-        self.run_btn = tk.Button(control_frame, text='▶▶ Run', command=self.run, **btn_style)
-        self.run_btn.pack(side='left', padx=3, pady=10)
+        self.run_btn = tk.Button(control_frame, text='Run', command=self.run, **btn_style)  # type: ignore
+        self.run_btn.pack(side='left', padx=4)
 
-        self.stop_btn = tk.Button(control_frame, text='⏸ Stop', command=self.stop,
-                                 state='disabled', **btn_style)
-        self.stop_btn.pack(side='left', padx=3, pady=10)
+        self.stop_btn = tk.Button(control_frame, text='Stop', command=self.stop,
+                                 state='disabled', **btn_style)  # type: ignore
+        self.stop_btn.pack(side='left', padx=4)
 
         # Cycle info
-        self.cycle_label = tk.Label(control_frame, text='Cycle: 0 / 0',
-                                   bg='#2A2A2A', fg='white', font=('Arial', 11, 'bold'))
-        self.cycle_label.pack(side='left', padx=20)
+        self.cycle_label = tk.Label(control_frame, text='Ciclo: 0 / 0',
+                                   bg=BG3, fg=ACCENT, font=("Courier", 9, "bold"))
+        self.cycle_label.pack(side='left', padx=14)
 
         self.pc_label = tk.Label(control_frame, text='PC: 0',
-                                bg='#2A2A2A', fg='#6ADA6A', font=('Arial', 11, 'bold'))
+                                bg=BG3, fg=GREEN, font=("Courier", 9, "bold"))
         self.pc_label.pack(side='left', padx=10)
 
-        # Speed control
-        tk.Label(control_frame, text='Speed:', bg='#2A2A2A', fg='white',
-                font=('Arial', 9)).pack(side='left', padx=(20, 5))
+        # Speed control (Combobox como en multiciclo)
+        tk.Label(control_frame, text='Velocidad:', bg=BG3, fg=FG2,
+                font=SMALL).pack(side='left', padx=(12, 2))
+        
+        self._spd_var = tk.StringVar(value="1×")
+        spd = ttk.Combobox(control_frame, textvariable=self._spd_var,
+                          values=["1×", "2×", "4×", "8×"], state="readonly", width=4)
+        spd.pack(side='left')
+        spd.bind("<<ComboboxSelected>>", self._on_speed_change)
 
-        self.speed_scale = tk.Scale(control_frame, from_=100, to=2000, orient='horizontal',
-                                   bg='#2A2A2A', fg='white', highlightthickness=0,
-                                   length=150, command=self.update_speed)
-        self.speed_scale.set(500)
-        self.speed_scale.pack(side='left', padx=5)
+        # Mode label
+        self._lbl_mode = tk.Label(control_frame, text="Modo: Step-by-step",
+                                 bg=BG3, fg=FG2, font=SMALL)
+        self._lbl_mode.pack(side='left', padx=14)
 
-        # Main content area
-        content_frame = tk.Frame(self, bg='#1A1A1A')
-        content_frame.pack(fill='both', expand=True, padx=5, pady=5)
+        # Main content area con scrollbar
+        # Canvas y scrollbar para hacer scroll vertical
+        main_canvas = tk.Canvas(self, bg=BG, highlightthickness=0)
+        scrollbar = tk.Scrollbar(self, orient='vertical', command=main_canvas.yview)
+        
+        # Frame scrollable que contendrá todo el contenido
+        scrollable_frame = tk.Frame(main_canvas, bg=BG)
+        scrollable_frame.bind(
+            "<Configure>",
+            lambda e: main_canvas.configure(scrollregion=main_canvas.bbox("all"))
+        )
+        
+        main_canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+        main_canvas.configure(yscrollcommand=scrollbar.set)
+        
+        # Pack canvas y scrollbar
+        main_canvas.pack(side='left', fill='both', expand=True, padx=(5, 0), pady=5)
+        scrollbar.pack(side='right', fill='y', pady=5)
+        
+        # Bind mouse wheel para scroll
+        def _on_mousewheel(event):
+            main_canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+        main_canvas.bind_all("<MouseWheel>", _on_mousewheel)
+        
+        # Ahora content_frame es el scrollable_frame
+        content_frame = scrollable_frame
+
+        # Sección superior: Pipeline y Registros lado a lado
+        top_section = tk.Frame(content_frame, bg=BG)
+        top_section.pack(fill='x', padx=5, pady=5)
 
         # Left side: Pipeline visualization
-        pipeline_frame = tk.Frame(content_frame, bg='#1A1A1A')
+        pipeline_frame = tk.Frame(top_section, bg=BG)
         pipeline_frame.pack(side='left', fill='both', expand=True, padx=(0, 5))
 
         # Title
-        tk.Label(pipeline_frame, text='Pipeline Stages', bg='#1A1A1A', fg='white',
-                font=('Arial', 12, 'bold')).pack(pady=(0, 10))
+        tk.Label(pipeline_frame, text='Etapas del Pipeline', bg=BG, fg=FG,
+                font=LABEL_F).pack(pady=(0, 10))
 
         # Pipeline stages container
-        stages_container = tk.Frame(pipeline_frame, bg='#1A1A1A')
+        stages_container = tk.Frame(pipeline_frame, bg=BG)
         stages_container.pack(fill='both', expand=True)
 
         # Create pipeline stages
@@ -231,7 +282,7 @@ class ProcessorView(tk.Frame):
             self.stages[stage_name] = stage_widget
 
         # Pipeline arrows
-        arrow_canvas = tk.Canvas(stages_container, height=30, bg='#1A1A1A',
+        arrow_canvas = tk.Canvas(stages_container, height=30, bg=BG,
                                 highlightthickness=0)
         arrow_canvas.grid(row=1, column=0, columnspan=len(stage_names), sticky='ew')
 
@@ -240,25 +291,25 @@ class ProcessorView(tk.Frame):
             x_start = (i + 1) * 170 - 10
             x_end = x_start + 20
             arrow_canvas.create_line(x_start, 15, x_end, 15, arrow=tk.LAST,
-                                    fill='#6ADA6A', width=2)
+                                    fill=GREEN, width=2)
 
         # Right side: Register file and info
-        info_frame = tk.Frame(content_frame, bg='#2A2A2A', width=280)
-        info_frame.pack(side='right', fill='both', padx=(5, 0))
+        info_frame = tk.Frame(top_section, bg=BG2, width=280)
+        info_frame.pack(side='right', fill='y', padx=(5, 0))
         info_frame.pack_propagate(False)
 
         # Register file
-        tk.Label(info_frame, text='Register File', bg='#2A2A2A', fg='white',
-                font=('Arial', 11, 'bold')).pack(pady=(10, 5))
+        tk.Label(info_frame, text='Banco de Registros', bg=BG2, fg=FG,
+                font=LABEL_F).pack(pady=(10, 5))
 
         # Scrollable register display
-        reg_container = tk.Frame(info_frame, bg='#2A2A2A')
+        reg_container = tk.Frame(info_frame, bg=BG2)
         reg_container.pack(fill='both', expand=True, padx=10, pady=5)
 
-        reg_canvas = tk.Canvas(reg_container, bg='#1A1A1A', highlightthickness=0)
+        reg_canvas = tk.Canvas(reg_container, bg=BG, highlightthickness=0)
         scrollbar = ttk.Scrollbar(reg_container, orient='vertical', command=reg_canvas.yview)
 
-        self.reg_frame = tk.Frame(reg_canvas, bg='#1A1A1A')
+        self.reg_frame = tk.Frame(reg_canvas, bg=BG)
 
         reg_canvas.create_window((0, 0), window=self.reg_frame, anchor='nw')
         reg_canvas.configure(yscrollcommand=scrollbar.set)
@@ -271,7 +322,7 @@ class ProcessorView(tk.Frame):
         for i in range(32):
             reg_name = f'x{i}'
             reg_label = tk.Label(self.reg_frame, text=f'{reg_name}: 0',
-                               bg='#1A1A1A', fg='#AAAAAA', font=('Courier', 9),
+                               bg=BG, fg=FG2, font=MONO,
                                anchor='w', width=18)
             reg_label.pack(pady=1, padx=5)
             self.reg_labels[reg_name] = reg_label
@@ -280,15 +331,15 @@ class ProcessorView(tk.Frame):
         reg_canvas.configure(scrollregion=reg_canvas.bbox('all'))
 
         # ====== PROCESSOR DIAGRAM SECTION ======
-        diagram_frame = tk.Frame(self, bg='#1A1A1A')
+        diagram_frame = tk.Frame(self, bg=BG)
         diagram_frame.pack(fill='both', expand=True, padx=5, pady=5)
 
         # Title for diagram section
-        tk.Label(diagram_frame, text='Processor Architecture', bg='#1A1A1A', fg='white',
-                font=('Arial', 12, 'bold')).pack(pady=(0, 5))
+        tk.Label(diagram_frame, text='Arquitectura del Procesador', bg=BG, fg=FG,
+                font=LABEL_F).pack(pady=(0, 5))
 
         # Create scrollable canvas for processor diagram
-        diagram_container = tk.Frame(diagram_frame, bg='#2A2A2A')
+        diagram_container = tk.Frame(diagram_frame, bg=BG2)
         diagram_container.pack(fill='both', expand=True)
 
         # Canvas with scrollbars
@@ -297,7 +348,7 @@ class ProcessorView(tk.Frame):
 
         self.diagram_canvas = tk.Canvas(
             diagram_container,
-            bg='#1A1A1A',
+            bg=BG,
             highlightthickness=0,
             xscrollcommand=h_scrollbar.set,
             yscrollcommand=v_scrollbar.set,
@@ -323,21 +374,28 @@ class ProcessorView(tk.Frame):
         self.diagram_canvas.configure(scrollregion=self.diagram_canvas.bbox('all'))
 
         # Bottom: Instruction info
-        instr_info_frame = tk.Frame(self, bg='#2A2A2A', height=80)
+        instr_info_frame = tk.Frame(self, bg=BG3, height=80)
         instr_info_frame.pack(fill='x', padx=5, pady=(0, 5))
         instr_info_frame.pack_propagate(False)
 
-        tk.Label(instr_info_frame, text='Current Instruction Info', bg='#2A2A2A',
-                fg='white', font=('Arial', 10, 'bold')).pack(pady=(5, 2))
+        tk.Label(instr_info_frame, text='Información de Instrucción Actual', bg=BG3,
+                fg=FG, font=LABEL_F).pack(pady=(5, 2))
 
-        self.instr_info_label = tk.Label(instr_info_frame, text='No instruction',
-                                         bg='#1A1A1A', fg='#AAAAAA',
-                                         font=('Courier', 9), anchor='w',
+        self.instr_info_label = tk.Label(instr_info_frame, text='Sin instrucción',
+                                         bg=BG, fg=FG2,
+                                         font=MONO, anchor='w',
                                          padx=10, pady=5)
         self.instr_info_label.pack(fill='both', expand=True, padx=10, pady=(0, 5))
 
+    def _on_speed_change(self, event=None):
+        """Callback cuando cambia la velocidad en el Combobox"""
+        speed_str = self._spd_var.get()
+        self._speed = int(speed_str[:-1])  # Quitar el '×' y convertir a int
+        # Actualizar animation_speed basado en el multiplicador
+        self.animation_speed = max(80, 1000 // self._speed)
+
     def update_speed(self, value):
-        """Update animation speed"""
+        """Update animation speed (legacy method for compatibility)"""
         self.animation_speed = int(value)
 
     def _add_stage_components(self, stage_name: str, components: list, wires: list):
@@ -395,10 +453,10 @@ class ProcessorView(tk.Frame):
             self.current_cycle = 0
             self.update_display()
             total = self.parser.get_total_cycles()
-            self.cycle_label.config(text=f'Cycle: 0 / {total}')
+            self.cycle_label.config(text=f'Ciclo: 0 / {total}')
             return True
         else:
-            self.instr_info_label.config(text='Error: Could not load log file')
+            self.instr_info_label.config(text='Error: No se pudo cargar el archivo de log')
             return False
 
     def update_display(self):
@@ -410,7 +468,7 @@ class ProcessorView(tk.Frame):
 
         # Update cycle and PC labels
         total = self.parser.get_total_cycles()
-        self.cycle_label.config(text=f"Cycle: {cycle_data['cycle']} / {total}")
+        self.cycle_label.config(text=f"Ciclo: {cycle_data['cycle']} / {total}")
         self.pc_label.config(text=f"PC: {cycle_data['pc']}")
 
         # Update pipeline stages
@@ -446,15 +504,15 @@ class ProcessorView(tk.Frame):
             if reg_name in self.reg_labels:
                 self.reg_labels[reg_name].config(
                     text=f'{reg_name}: {reg_value}',
-                    fg='#6ADA6A',
-                    font=('Courier', 9, 'bold')
+                    fg=GREEN,
+                    font=("Courier", 9, "bold")
                 )
 
         # Reset non-updated registers to normal color
         for reg_name, label in self.reg_labels.items():
             if not any(reg_name == r[0] for r in cycle_data['reg_updates']):
                 current_text = label.cget('text')
-                label.config(fg='#AAAAAA', font=('Courier', 9))
+                label.config(fg=FG2, font=MONO)
 
     def reset(self):
         """Reset to cycle 0"""
@@ -463,22 +521,25 @@ class ProcessorView(tk.Frame):
 
         # Reset all register displays
         for reg_name, label in self.reg_labels.items():
-            label.config(text=f'{reg_name}: 0', fg='#AAAAAA', font=('Courier', 9))
+            label.config(text=f'{reg_name}: 0', fg=FG2, font=MONO)
 
         # Reset processor diagram
         if self.processor_diagram:
             self.processor_diagram.reset_all()
 
         self.update_display()
+        self._lbl_mode.config(text="Modo: Step-by-step")
 
     def step(self):
         """Step forward one cycle"""
+        self.stop()  # Detener si está corriendo
         if self.current_cycle < self.parser.get_total_cycles() - 1:
             self.current_cycle += 1
             self.update_display()
 
     def step_back(self):
         """Step back one cycle"""
+        self.stop()  # Detener si está corriendo
         if self.current_cycle > 0:
             self.current_cycle -= 1
             # Need to recalculate register state up to this point
@@ -498,6 +559,7 @@ class ProcessorView(tk.Frame):
             self.is_running = True
             self.run_btn.config(state='disabled')
             self.stop_btn.config(state='normal')
+            self._lbl_mode.config(text="Modo: Automático")
             self._run_cycle()
 
     def _run_cycle(self):
@@ -508,9 +570,13 @@ class ProcessorView(tk.Frame):
             self.after(self.animation_speed, self._run_cycle)
         else:
             self.stop()
+            if self.current_cycle >= self.parser.get_total_cycles() - 1:
+                self._lbl_mode.config(text="Modo: Completado ✓")
 
     def stop(self):
         """Stop the animation"""
-        self.is_running = False
-        self.run_btn.config(state='normal')
-        self.stop_btn.config(state='disabled')
+        if self.is_running:
+            self.is_running = False
+            self.run_btn.config(state='normal')
+            self.stop_btn.config(state='disabled')
+            self._lbl_mode.config(text="Modo: Step-by-step")

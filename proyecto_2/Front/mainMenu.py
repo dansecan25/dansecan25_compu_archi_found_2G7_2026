@@ -204,7 +204,8 @@ class MainMenu:
         messagebox.showinfo(
             "Simulación Completada",
             "Las simulaciones se completaron exitosamente.\n"
-            "Use los controles en las ventanas de procesador para navegar por los ciclos."
+            "Use los controles en las ventanas de procesador para navegar por los ciclos.",
+            parent=self.master
         )
 
 
