@@ -110,7 +110,7 @@ class MulticicloLogParser:
 
             # Latencia por etapa (ns)
             lat = {"FETCH":1.0,"DECODE":0.5,"EXECUTE":1.5,"MEMORY":2.0,"WRITEBACK":0.5}
-            time_ns = sum(lat.get(s, 1.0) for _ in range(num))  # simplificado
+            time_ns = num * lat.get(stage, 1.0)
 
             self.cycles.append({
                 "cycle"  : num,
@@ -391,9 +391,9 @@ class VistaMulticiclo(tk.Frame):
     def _build_controls(self, par):
         kw = dict(bg="#333333", fg=FG, font=("Courier",10), relief=tk.GROOVE,
                   activebackground=BORDER, bd=1, padx=10, pady=3)
-        self._btn_step  = tk.Button(par, text="Step",  command=self._step,  **kw)
-        self._btn_run   = tk.Button(par, text="Run",   command=self._run,   **kw)
-        self._btn_reset = tk.Button(par, text="Reset", command=self._reset, **kw)
+        self._btn_step  = tk.Button(par, text="Step",  command=self._step,  **kw)  # type: ignore
+        self._btn_run   = tk.Button(par, text="Run",   command=self._run,   **kw)  # type: ignore
+        self._btn_reset = tk.Button(par, text="Reset", command=self._reset, **kw)  # type: ignore
         for b in (self._btn_step, self._btn_run, self._btn_reset):
             b.pack(side=tk.LEFT, padx=4)
 
@@ -471,7 +471,7 @@ class VistaMulticiclo(tk.Frame):
         except: pc_str = pc
 
         stage     = cy["stage"]
-        stage_sh  = {v: k for k, v in STAGE_FULL.items()}.get(stage, stage[:2])
+        stage_sh  = {v: k for k, v in STAGE_FULL.items()}.get(stage, stage[:2] if stage else "")
 
         self._v_cycle.config(text=str(cy["cycle"]))
         self._v_pc.config(text=pc_str)
@@ -479,7 +479,11 @@ class VistaMulticiclo(tk.Frame):
         self._v_instr.config(text=cy["instr"] or "(fin del programa)")
 
         self._diag.set_active(cy["active"], stage)
-        self._fsm.set_active(stage_sh)
+        # Solo actualizar FSM si stage_sh es válido
+        if stage_sh and stage_sh in FSMCanvas.POSITIONS:
+            self._fsm.set_active(stage_sh)
+        else:
+            self._fsm.reset_active()
 
         # Registros temporales
         temps = cy["temps"]

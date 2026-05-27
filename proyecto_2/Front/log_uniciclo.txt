@@ -72,7 +72,7 @@ Labels detectados: {'skip': 10}
 [EJECUCIÓN COMPLETADA]
 Total de ciclos: 13
 Instrucciones ejecutadas: 12
-Tiempo de ejecución: 0.000173 segundos
+Tiempo de ejecución: 0.000396 segundos
 CPI (Cycles Per Instruction): 1.0 (arquitectura uniciclo)
 ================================================================================
 
