@@ -229,34 +229,33 @@ class ProcessorView(tk.Frame):
                                  bg=BG3, fg=FG2, font=SMALL)
         self._lbl_mode.pack(side='left', padx=14)
 
-        # Main content area con scrollbar
-        # Canvas y scrollbar para hacer scroll vertical
+        # ── Outer frame que ocupa el resto del espacio vertical ──────────────
+        # main_canvas hace scroll de TODO el contenido (etapas + diagrama + info)
         main_canvas = tk.Canvas(self, bg=BG, highlightthickness=0)
         scrollbar = tk.Scrollbar(self, orient='vertical', command=main_canvas.yview)
-        
-        # Frame scrollable que contendrá todo el contenido
+
+        # Frame scrollable que contendrá TODA la UI restante
         scrollable_frame = tk.Frame(main_canvas, bg=BG)
         scrollable_frame.bind(
             "<Configure>",
             lambda e: main_canvas.configure(scrollregion=main_canvas.bbox("all"))
         )
-        
+
         main_canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
         main_canvas.configure(yscrollcommand=scrollbar.set)
-        
-        # Pack canvas y scrollbar
+
         main_canvas.pack(side='left', fill='both', expand=True, padx=(5, 0), pady=5)
         scrollbar.pack(side='right', fill='y', pady=5)
-        
+
         # Bind mouse wheel para scroll
         def _on_mousewheel(event):
             main_canvas.yview_scroll(int(-1*(event.delta/120)), "units")
         main_canvas.bind_all("<MouseWheel>", _on_mousewheel)
-        
-        # Ahora content_frame es el scrollable_frame
+
+        # Alias para claridad — todo lo que sigue va dentro del área scrollable
         content_frame = scrollable_frame
 
-        # Sección superior: Pipeline y Registros lado a lado
+        # ── Sección 1: Pipeline y Registros lado a lado ──────────────────────
         top_section = tk.Frame(content_frame, bg=BG)
         top_section.pack(fill='x', padx=5, pady=5)
 
@@ -307,15 +306,15 @@ class ProcessorView(tk.Frame):
         reg_container.pack(fill='both', expand=True, padx=10, pady=5)
 
         reg_canvas = tk.Canvas(reg_container, bg=BG, highlightthickness=0)
-        scrollbar = ttk.Scrollbar(reg_container, orient='vertical', command=reg_canvas.yview)
+        reg_scrollbar = ttk.Scrollbar(reg_container, orient='vertical', command=reg_canvas.yview)
 
         self.reg_frame = tk.Frame(reg_canvas, bg=BG)
 
         reg_canvas.create_window((0, 0), window=self.reg_frame, anchor='nw')
-        reg_canvas.configure(yscrollcommand=scrollbar.set)
+        reg_canvas.configure(yscrollcommand=reg_scrollbar.set)
 
         reg_canvas.pack(side='left', fill='both', expand=True)
-        scrollbar.pack(side='right', fill='y')
+        reg_scrollbar.pack(side='right', fill='y')
 
         # Initialize register labels
         self.reg_labels = {}
@@ -330,19 +329,16 @@ class ProcessorView(tk.Frame):
         self.reg_frame.update_idletasks()
         reg_canvas.configure(scrollregion=reg_canvas.bbox('all'))
 
-        # ====== PROCESSOR DIAGRAM SECTION ======
-        diagram_frame = tk.Frame(self, bg=BG)
-        diagram_frame.pack(fill='both', expand=True, padx=5, pady=5)
+        # ── Sección 2: Diagrama del Procesador (debajo de las etapas) ────────
+        diagram_frame = tk.Frame(content_frame, bg=BG)
+        diagram_frame.pack(fill='x', padx=5, pady=(10, 5))
 
-        # Title for diagram section
         tk.Label(diagram_frame, text='Arquitectura del Procesador', bg=BG, fg=FG,
                 font=LABEL_F).pack(pady=(0, 5))
 
-        # Create scrollable canvas for processor diagram
         diagram_container = tk.Frame(diagram_frame, bg=BG2)
-        diagram_container.pack(fill='both', expand=True)
+        diagram_container.pack(fill='x', expand=False)
 
-        # Canvas with scrollbars
         h_scrollbar = ttk.Scrollbar(diagram_container, orient='horizontal')
         v_scrollbar = ttk.Scrollbar(diagram_container, orient='vertical')
 
@@ -359,7 +355,6 @@ class ProcessorView(tk.Frame):
         h_scrollbar.config(command=self.diagram_canvas.xview)
         v_scrollbar.config(command=self.diagram_canvas.yview)
 
-        # Grid layout for canvas and scrollbars
         self.diagram_canvas.grid(row=0, column=0, sticky='nsew')
         v_scrollbar.grid(row=0, column=1, sticky='ns')
         h_scrollbar.grid(row=1, column=0, sticky='ew')
@@ -367,14 +362,11 @@ class ProcessorView(tk.Frame):
         diagram_container.grid_rowconfigure(0, weight=1)
         diagram_container.grid_columnconfigure(0, weight=1)
 
-        # Create the processor diagram
         self.processor_diagram = ProcessorDiagram(self.diagram_canvas)
-
-        # Configure scroll region
         self.diagram_canvas.configure(scrollregion=self.diagram_canvas.bbox('all'))
 
-        # Bottom: Instruction info
-        instr_info_frame = tk.Frame(self, bg=BG3, height=80)
+        # ── Sección 3: Info de instrucción actual (al fondo) ─────────────────
+        instr_info_frame = tk.Frame(content_frame, bg=BG3, height=80)
         instr_info_frame.pack(fill='x', padx=5, pady=(0, 5))
         instr_info_frame.pack_propagate(False)
 
