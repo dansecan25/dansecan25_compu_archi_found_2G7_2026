@@ -1,0 +1,188 @@
+=== LOG DE EJECUCIÓN DEL CPU PIPELINE CON PREDICCIÓN DE SALTOS ===
+Estrategia de predicción: always_taken
+================================================================================
+
+12 instrucciones cargadas desde lista `riscv_code`
+  [000] addi x1, x0, 10
+  [001] addi x2, x0, 20
+  [002] add x3, x1, x2
+  [003] addi x10, x0, 0
+  [004] sw x1, 0(x10)
+  [005] sw x2, 4(x10)
+  [006] sw x3, 8(x10)
+  [007] lw x4, 0(x10)
+  [008] beq x1, x2, skip
+  [009] addi x5, x0, 50
+  [010] addi x6, x0, 77
+  [011] nop
+
+=== INICIANDO SIMULACIÓN DEL PIPELINE CON PREDICCIÓN DE SALTOS ===
+
+
+[CICLO   0] [PC=  0] Estado del Pipeline:
+  Fetch:        Libre
+  Decode:       Libre
+  RegFile:      Libre
+  Execute:      Libre
+  Store:        Libre
+
+
+[CICLO   1] [PC=  4] Estado del Pipeline:
+  Fetch:        Procesando: addi x1, x0, 10 (1 ciclos restantes)
+  Decode:       Libre
+  RegFile:      Libre
+  Execute:      Libre
+  Store:        Libre
+
+
+[CICLO   2] [PC=  8] Estado del Pipeline:
+  Fetch:        Procesando: addi x2, x0, 20 (1 ciclos restantes)
+  Decode:       Procesando: addi x1, x0, 10 (1 ciclos restantes)
+  RegFile:      Libre
+  Execute:      Libre
+  Store:        Libre
+
+
+[CICLO   3] [PC= 12] Estado del Pipeline:
+  Fetch:        Procesando: add x3, x1, x2 (1 ciclos restantes)
+  Decode:       Procesando: addi x2, x0, 20 (1 ciclos restantes)
+  RegFile:      Procesando: addi x1, x0, 10 (1 ciclos restantes)
+  Execute:      Libre
+  Store:        Libre
+
+
+[CICLO   4] [PC= 16] Estado del Pipeline:
+  Fetch:        Procesando: addi x10, x0, 0 (1 ciclos restantes)
+  Decode:       Procesando: add x3, x1, x2 (1 ciclos restantes)
+  RegFile:      Procesando: addi x2, x0, 20 (1 ciclos restantes)
+  Execute:      Procesando: addi x1, x0, 10 (1 ciclos restantes)
+  Store:        Libre
+
+
+[CICLO   5] [PC= 20] Estado del Pipeline:
+  Fetch:        Procesando: sw x1, 0(x10) (1 ciclos restantes)
+  Decode:       Procesando: addi x10, x0, 0 (1 ciclos restantes)
+  RegFile:      Procesando: add x3, x1, x2 (1 ciclos restantes)
+  Execute:      Procesando: addi x2, x0, 20 (1 ciclos restantes)
+  Store:        Procesando: addi x1, x0, 10 (1 ciclos restantes)
+
+[CICLO 5] [COMPLETADA] addi x1, x0, 10
+[STORE] Registro x1 <- 10
+
+[CICLO   6] [PC= 24] Estado del Pipeline:
+  Fetch:        Procesando: sw x2, 4(x10) (1 ciclos restantes)
+  Decode:       Procesando: sw x1, 0(x10) (1 ciclos restantes)
+  RegFile:      Procesando: addi x10, x0, 0 (1 ciclos restantes)
+  Execute:      Procesando: add x3, x1, x2 (1 ciclos restantes)
+  Store:        Procesando: addi x2, x0, 20 (1 ciclos restantes)
+
+[CICLO 6] [COMPLETADA] addi x2, x0, 20
+[STORE] Registro x2 <- 20
+
+[CICLO   7] [PC= 28] Estado del Pipeline:
+  Fetch:        Procesando: sw x3, 8(x10) (1 ciclos restantes)
+  Decode:       Procesando: sw x2, 4(x10) (1 ciclos restantes)
+  RegFile:      Procesando: sw x1, 0(x10) (1 ciclos restantes)
+  Execute:      Procesando: addi x10, x0, 0 (1 ciclos restantes)
+  Store:        Procesando: add x3, x1, x2 (1 ciclos restantes)
+
+[CICLO 7] [COMPLETADA] add x3, x1, x2
+[STORE] Registro x3 <- 0
+
+[CICLO   8] [PC= 32] Estado del Pipeline:
+  Fetch:        Procesando: lw x4, 0(x10) (1 ciclos restantes)
+  Decode:       Procesando: sw x3, 8(x10) (1 ciclos restantes)
+  RegFile:      Procesando: sw x2, 4(x10) (1 ciclos restantes)
+  Execute:      Procesando: sw x1, 0(x10) (1 ciclos restantes)
+  Store:        Procesando: addi x10, x0, 0 (1 ciclos restantes)
+
+[CICLO 8] [COMPLETADA] addi x10, x0, 0
+[STORE] Registro x10 <- 0
+
+[CICLO   9] [PC= 36] Estado del Pipeline:
+  Fetch:        Procesando: beq x1, x2, skip (1 ciclos restantes)
+  Decode:       Procesando: lw x4, 0(x10) (1 ciclos restantes)
+  RegFile:      Procesando: sw x3, 8(x10) (1 ciclos restantes)
+  Execute:      Procesando: sw x2, 4(x10) (1 ciclos restantes)
+  Store:        Procesando: sw x1, 0(x10) (1 ciclos restantes)
+
+[CICLO 9] [COMPLETADA] sw x1, 0(x10)
+[STORE] Mem[0] <- 10
+
+[CICLO  10] [PC= 40] Estado del Pipeline:
+  Fetch:        Procesando: addi x5, x0, 50 (1 ciclos restantes)
+  Decode:       Procesando: beq x1, x2, skip (1 ciclos restantes)
+  RegFile:      Procesando: lw x4, 0(x10) (1 ciclos restantes)
+  Execute:      Procesando: sw x3, 8(x10) (1 ciclos restantes)
+  Store:        Procesando: sw x2, 4(x10) (1 ciclos restantes)
+
+[CICLO 10] [COMPLETADA] sw x2, 4(x10)
+[STORE] Mem[4] <- 20
+[DECODE] Branch detectado: beq x1, x2, skip (PC=32)
+[DECODE] PREDICCIÓN: TOMADO -> target=40
+
+[CICLO  11] [PC= 44] [ESPECULATIVO] Estado del Pipeline:
+  Fetch:        Procesando: addi x6, x0, 77 (1 ciclos restantes)
+  Decode:       Procesando: addi x5, x0, 50 (1 ciclos restantes)
+  RegFile:      Procesando: beq x1, x2, skip (1 ciclos restantes)
+  Execute:      Procesando: lw x4, 0(x10) (4 ciclos restantes)
+  Store:        Procesando: sw x3, 8(x10) (1 ciclos restantes)
+
+[CICLO 11] [COMPLETADA] sw x3, 8(x10)
+[STORE] Mem[8] <- 0
+
+[CICLO  12] [PC= 48] [ESPECULATIVO] Estado del Pipeline:
+  Fetch:        Procesando: nop (1 ciclos restantes)
+  Decode:       Procesando: addi x6, x0, 77 (1 ciclos restantes)
+  RegFile:      Procesando: addi x5, x0, 50 (1 ciclos restantes)
+  Execute:      Procesando: lw x4, 0(x10) (3 ciclos restantes)
+  Store:        Libre
+
+
+[CICLO  13] [PC= 48] [ESPECULATIVO] Estado del Pipeline:
+  Fetch:        Libre
+  Decode:       Procesando: nop (1 ciclos restantes)
+  RegFile:      Procesando: addi x6, x0, 77 (1 ciclos restantes)
+  Execute:      Procesando: lw x4, 0(x10) (2 ciclos restantes)
+  Store:        Libre
+
+
+[CICLO  14] [PC= 48] [ESPECULATIVO] Estado del Pipeline:
+  Fetch:        Libre
+  Decode:       Libre
+  RegFile:      Procesando: nop (1 ciclos restantes)
+  Execute:      Procesando: lw x4, 0(x10) (1 ciclos restantes)
+  Store:        Libre
+
+
+[CICLO  15] [PC= 48] [ESPECULATIVO] Estado del Pipeline:
+  Fetch:        Libre
+  Decode:       Libre
+  RegFile:      Libre
+  Execute:      Procesando: nop (1 ciclos restantes)
+  Store:        Procesando: lw x4, 0(x10) (1 ciclos restantes)
+
+[CICLO 15] [COMPLETADA] lw x4, 0(x10)
+[STORE] Load: x4 <- Mem[0] = 10
+
+[CICLO  16] [PC= 48] [ESPECULATIVO] Estado del Pipeline:
+  Fetch:        Libre
+  Decode:       Libre
+  RegFile:      Libre
+  Execute:      Libre
+  Store:        Procesando: nop (1 ciclos restantes)
+
+[CICLO 16] [COMPLETADA] nop
+
+================================================================================
+[SIMULACIÓN COMPLETADA] Total de ciclos: 17
+[ESTADÍSTICAS DE PREDICCIÓN]
+  Total branches: 0
+  Predicciones: 1
+  Correctas: 0
+  Incorrectas: 0
+  Precisión: 0.00%
+  Total flushes: 0
+================================================================================
+
+Estado de memoria escrito en memoria_salida_prediccion.txt

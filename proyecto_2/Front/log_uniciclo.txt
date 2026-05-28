@@ -1,0 +1,79 @@
+=== LOG DE EJECUCIÓN DEL CPU UNICICLO ===
+Arquitectura: Single-Cycle (1 instrucción por ciclo)
+================================================================================
+
+12 instrucciones cargadas
+Labels detectados: {'skip': 10}
+
+=== INICIANDO EJECUCIÓN ===
+
+
+[CICLO 1] PC=0
+  Instrucción: addi x1, x0, 10
+  Señales de control: {'RegWrite': 1, 'ALUSrc': 1, 'MemRead': 0, 'MemWrite': 0, 'MemToReg': 0, 'Branch': 0, 'ALUOp': 'add'}
+  ADDI: x0(0) + 10 = 10 → x1
+
+[CICLO 2] PC=1
+  Instrucción: addi x2, x0, 20
+  Señales de control: {'RegWrite': 1, 'ALUSrc': 1, 'MemRead': 0, 'MemWrite': 0, 'MemToReg': 0, 'Branch': 0, 'ALUOp': 'add'}
+  ADDI: x0(0) + 20 = 20 → x2
+
+[CICLO 3] PC=2
+  Instrucción: add x3, x1, x2
+  Señales de control: {'RegWrite': 1, 'ALUSrc': 0, 'MemRead': 0, 'MemWrite': 0, 'MemToReg': 0, 'Branch': 0, 'ALUOp': 'add'}
+  ALU: x1(10) add x2(20) = 30 → x3
+
+[CICLO 4] PC=3
+  Instrucción: addi x10, x0, 0
+  Señales de control: {'RegWrite': 1, 'ALUSrc': 1, 'MemRead': 0, 'MemWrite': 0, 'MemToReg': 0, 'Branch': 0, 'ALUOp': 'add'}
+  ADDI: x0(0) + 0 = 0 → x10
+
+[CICLO 5] PC=4
+  Instrucción: sw x1, 0(x10)
+  Señales de control: {'RegWrite': 0, 'ALUSrc': 1, 'MemRead': 0, 'MemWrite': 1, 'MemToReg': 0, 'Branch': 0, 'ALUOp': 'add'}
+  SW: Mem[0] ← x1(10)
+
+[CICLO 6] PC=5
+  Instrucción: sw x2, 4(x10)
+  Señales de control: {'RegWrite': 0, 'ALUSrc': 1, 'MemRead': 0, 'MemWrite': 1, 'MemToReg': 0, 'Branch': 0, 'ALUOp': 'add'}
+  SW: Mem[4] ← x2(20)
+
+[CICLO 7] PC=6
+  Instrucción: sw x3, 8(x10)
+  Señales de control: {'RegWrite': 0, 'ALUSrc': 1, 'MemRead': 0, 'MemWrite': 1, 'MemToReg': 0, 'Branch': 0, 'ALUOp': 'add'}
+  SW: Mem[8] ← x3(30)
+
+[CICLO 8] PC=7
+  Instrucción: lw x4, 0(x10)
+  Señales de control: {'RegWrite': 1, 'ALUSrc': 1, 'MemRead': 1, 'MemWrite': 0, 'MemToReg': 1, 'Branch': 0, 'ALUOp': 'add'}
+  LW: x4 ← Mem[0](10)
+
+[CICLO 9] PC=8
+  Instrucción: beq x1, x2, skip
+  Señales de control: {'RegWrite': 0, 'ALUSrc': 0, 'MemRead': 0, 'MemWrite': 0, 'MemToReg': 0, 'Branch': 1, 'ALUOp': 'sub'}
+  BEQ: x1(10) != x2(20) → NO TOMADO
+
+[CICLO 10] PC=9
+  Instrucción: addi x5, x0, 50
+  Señales de control: {'RegWrite': 1, 'ALUSrc': 1, 'MemRead': 0, 'MemWrite': 0, 'MemToReg': 0, 'Branch': 0, 'ALUOp': 'add'}
+  ADDI: x0(0) + 50 = 50 → x5
+
+[CICLO 11] PC=10
+  Instrucción: addi x6, x0, 77
+  Señales de control: {'RegWrite': 1, 'ALUSrc': 1, 'MemRead': 0, 'MemWrite': 0, 'MemToReg': 0, 'Branch': 0, 'ALUOp': 'add'}
+  ADDI: x0(0) + 77 = 77 → x6
+
+[CICLO 12] PC=11
+  Instrucción: nop
+  NOP: No operation
+[CICLO 13] Fin del programa (PC=12)
+
+================================================================================
+[EJECUCIÓN COMPLETADA]
+Total de ciclos: 13
+Instrucciones ejecutadas: 12
+Tiempo de ejecución: 0.000130 segundos
+CPI (Cycles Per Instruction): 1.0 (arquitectura uniciclo)
+================================================================================
+
+Estado de memoria escrito en memoria_salida_uniciclo.txt
