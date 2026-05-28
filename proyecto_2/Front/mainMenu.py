@@ -200,13 +200,6 @@ class MainMenu:
             cpu2_idx
         )
         
-        # Mostrar mensaje de éxito
-        messagebox.showinfo(
-            "Simulación Completada",
-            "Las simulaciones se completaron exitosamente.\n"
-            "Use los controles en las ventanas de procesador para navegar por los ciclos.",
-            parent=self.master
-        )
 
 
     def editor_window(self):

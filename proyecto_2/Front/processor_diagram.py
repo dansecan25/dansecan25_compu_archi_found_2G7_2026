@@ -42,7 +42,7 @@ class ProcessorDiagram:
         x_ifid = x_if + stage_width - 30
         self.components['IF/ID'] = Register(self.canvas, x_ifid, margin_y + 10, 50, 280, "IF/ID")
 
-        # ============ STAGE 2: INSTRUCTION DECODE (ID) ============
+        # ============ STAGE 2: INSTRUCCIÓN DECODE (ID) ============
         x_id = x_ifid + 80
 
         # Control Unit
@@ -52,7 +52,7 @@ class ProcessorDiagram:
         self.components['RegFile'] = RegisterFile(self.canvas, x_id + 20, margin_y + 120, 90, 110)
 
         # Sign Extend
-        self.components['SignExt'] = SignExtend(self.canvas, x_id + 10, margin_y + 240, 70, 40)
+        self.components['SignExt'] = SignExtend(self.canvas, x_id + 80, margin_y + 240, 70, 40)
 
         # ID/EX Pipeline Register
         x_idex = x_id + stage_width - 20
@@ -61,18 +61,12 @@ class ProcessorDiagram:
         # ============ STAGE 3: EXECUTE (EX) ============
         x_ex = x_idex + 80
 
-        # ALU Control (small)
-        self.components['ALU_Control'] = ProcessorBlock(self.canvas, x_ex + 70, margin_y + 70, 60, 40, "ALU\nCtrl")
-
         # ALU
         self.components['ALU'] = ALU(self.canvas, x_ex + 50, margin_y + 130, 70, 90)
 
         # Muxes for ALU inputs
         self.components['Mux_ALU_A'] = Multiplexer(self.canvas, x_ex + 10, margin_y + 140, 35, 50, 2)
-        self.components['Mux_ALU_B'] = Multiplexer(self.canvas, x_ex + 130, margin_y + 160, 35, 50, 2)
-
-        # Branch Adder
-        self.components['Branch_Adder'] = Adder(self.canvas, x_ex + 60, margin_y + 30, 35)
+        self.components['Mux_ALU_B'] = Multiplexer(self.canvas, x_ex + 10, margin_y + 30, 35, 50, 2)
 
         # EX/MEM Pipeline Register
         x_exmem = x_ex + stage_width - 20
@@ -85,7 +79,7 @@ class ProcessorDiagram:
         self.components['Data_Mem'] = Memory(self.canvas, x_mem + 20, margin_y + 120, 90, 110, "Data")
 
         # Branch Mux (for PC source)
-        self.components['Mux_PC'] = Multiplexer(self.canvas, x_mem + 10, margin_y + 30, 35, 50, 2)
+        #self.components['Mux_PC'] = Multiplexer(self.canvas, x_mem + 10, margin_y + 30, 35, 50, 2)
 
         # MEM/WB Pipeline Register
         x_memwb = x_mem + stage_width - 30
@@ -106,7 +100,7 @@ class ProcessorDiagram:
         # ====== IF Stage Wires ======
 
         # PC to Instruction Memory
-        pc_out = self.components['PC'].get_port('right')
+        pc_out = self.components['PC'].get_port('left')
         imem_in = self.components['Inst_Mem'].get_port('Addr')
         self.wires['PC_to_IMem'] = Wire(
             self.canvas,
@@ -171,7 +165,7 @@ class ProcessorDiagram:
         signext_out = self.components['SignExt'].get_port('right')
         self.wires['SignExt_to_IDEX'] = Wire(
             self.canvas,
-            create_path(signext_out, (idex_in[0], idex_in[1] + 200), 'horizontal_first'),
+            create_path(signext_out, (idex_in[0], idex_in[1] + 50), 'horizontal_first'),
             name='SignExt_to_IDEX'
         )
 
@@ -182,8 +176,14 @@ class ProcessorDiagram:
         mux_alu_a_in = self.components['Mux_ALU_A'].get_input_port(0)
         self.wires['IDEX_to_ALU'] = Wire(
             self.canvas,
-            create_path((idex_out[0], idex_out[1] + 120), mux_alu_a_in, 'horizontal_first'),
-            name='IDEX_to_ALU'
+            create_path((idex_out[0], idex_out[1] + 10), mux_alu_a_in, 'horizontal_first'),
+           name='IDEX_to_ALU'
+        )
+        mux_alu_b_in = self.components['Mux_ALU_B'].get_input_port(0)
+        self.wires['IDEX_to_ALU_B'] = Wire(
+            self.canvas,
+            create_path((idex_out[0], idex_out[1] -30), mux_alu_b_in, 'horizontal_first'),
+           name='IDEX_to_ALU_B'
         )
 
         # Mux to ALU inputs
@@ -204,11 +204,11 @@ class ProcessorDiagram:
         )
 
         # ALU to EX/MEM
-        alu_out = self.components['ALU'].get_port('bottom')
+        alu_out = self.components['ALU'].get_port('top')
         exmem_in = self.components['EX/MEM'].get_port('left')
         self.wires['ALU_to_EXMEM'] = Wire(
             self.canvas,
-            create_path(alu_out, (exmem_in[0], exmem_in[1] + 150), 'vertical_first'),
+            create_path(alu_out, (exmem_in[0], exmem_in[1]-40), 'vertical_first'),
             name='ALU_to_EXMEM'
         )
 

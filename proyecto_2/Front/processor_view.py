@@ -293,13 +293,13 @@ class ProcessorView(tk.Frame):
         reg_container.pack(fill='both', expand=True, padx=10, pady=5)
 
         reg_canvas = tk.Canvas(reg_container, bg=BG, highlightthickness=0)
-        reg_sb = ttk.Scrollbar(reg_container, orient='vertical', command=reg_canvas.yview)
+        #reg_sb = ttk.Scrollbar(reg_container, orient='vertical', command=reg_canvas.yview)
         self.reg_frame = tk.Frame(reg_canvas, bg=BG)
 
         reg_canvas.create_window((0, 0), window=self.reg_frame, anchor='nw')
-        reg_canvas.configure(yscrollcommand=reg_sb.set)
+        #reg_canvas.configure(yscrollcommand=reg_sb.set)
         reg_canvas.pack(side='left', fill='both', expand=True)
-        reg_sb.pack(side='right', fill='y')
+        #reg_sb.pack(side='right', fill='y')
 
         self.reg_labels = {}
         for i in range(32):
@@ -322,25 +322,25 @@ class ProcessorView(tk.Frame):
         diagram_container = tk.Frame(diagram_frame, bg=BG2)
         diagram_container.pack(fill='both', expand=True)
 
-        h_scrollbar = ttk.Scrollbar(diagram_container, orient='horizontal')
-        v_scrollbar = ttk.Scrollbar(diagram_container, orient='vertical')
+        #h_scrollbar = ttk.Scrollbar(diagram_container, orient='horizontal')
+        #v_scrollbar = ttk.Scrollbar(diagram_container, orient='vertical')
 
         self.diagram_canvas = tk.Canvas(
             diagram_container,
             bg=BG,
             highlightthickness=0,
-            xscrollcommand=h_scrollbar.set,
-            yscrollcommand=v_scrollbar.set,
+            #xscrollcommand=h_scrollbar.set,
+            #yscrollcommand=v_scrollbar.set,
             width=1100,
             height=350,
         )
 
-        h_scrollbar.config(command=self.diagram_canvas.xview)
-        v_scrollbar.config(command=self.diagram_canvas.yview)
+        #h_scrollbar.config(command=self.diagram_canvas.xview)
+        #v_scrollbar.config(command=self.diagram_canvas.yview)
 
         self.diagram_canvas.grid(row=0, column=0, sticky='nsew')
-        v_scrollbar.grid(row=0, column=1, sticky='ns')
-        h_scrollbar.grid(row=1, column=0, sticky='ew')
+        #v_scrollbar.grid(row=0, column=1, sticky='ns')
+        #h_scrollbar.grid(row=1, column=0, sticky='ew')
 
         diagram_container.grid_rowconfigure(0, weight=1)
         diagram_container.grid_columnconfigure(0, weight=1)

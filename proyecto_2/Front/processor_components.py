@@ -138,6 +138,8 @@ class ProcessorBlock:
             return (self.x, self.y + self.height // 2)
         elif side == 'right':
             return (self.x + self.width, self.y + self.height // 2)
+        elif side == 'left-top':
+            return (self.x, self.y)
         return self.get_center()
 
 
@@ -449,10 +451,6 @@ class Junction:
         color = '#6ADA6A' if active else '#4A4A4A'
         self.canvas.itemconfig(self.circle_id, fill=color, outline='#6ADA6A' if active else '#5A5A5A')
 
-
-# Helper functions for creating wires with right angles
-def create_path(start: Tuple[int, int], end: Tuple[int, int],
-                style='horizontal_first') -> List[Tuple[int, int]]:
     """
     Create a path between two points with right angles
     Args:
@@ -460,6 +458,10 @@ def create_path(start: Tuple[int, int], end: Tuple[int, int],
         end: Ending point (x, y)
         style: 'horizontal_first' or 'vertical_first'
     """
+# Helper functions for creating wires with right angles
+def create_path(start: Tuple[int, int], end: Tuple[int, int],
+                style='horizontal_first') -> List[Tuple[int, int]]:
+
     x1, y1 = start
     x2, y2 = end
 
